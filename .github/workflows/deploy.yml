@@ -1,0 +1,71 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (metadata only)
+        uses: actions/checkout@v4
+
+      - name: Deploy over SSH and run Docker Compose
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+
+            BRANCH="${DEPLOY_BRANCH:-main}"
+            DEPLOY_PATH="${DEPLOY_PATH:-~/unicornchat-front}"
+            PORT_ENV="${PORT:-8080}"
+
+            # Build repo URL (supports private repos via GH_PAT)
+            if [ -n "${GH_PAT:-}" ]; then
+              REPO_URL="https://${GH_PAT}@github.com/${{ github.repository }}.git"
+            else
+              REPO_URL="${{ github.server_url }}/${{ github.repository }}.git"
+            fi
+
+            echo "Using repo: $REPO_URL"
+            echo "Deploy path: $DEPLOY_PATH"
+            echo "Branch: $BRANCH"
+
+            # Clone or update
+            if [ ! -d "$DEPLOY_PATH/.git" ]; then
+              mkdir -p "$DEPLOY_PATH"
+              git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$DEPLOY_PATH"
+            else
+              cd "$DEPLOY_PATH"
+              git fetch --prune
+              git checkout "$BRANCH"
+              git reset --hard "origin/$BRANCH"
+            fi
+
+            cd "$DEPLOY_PATH"
+            # Provide env to Compose
+            echo "PORT=$PORT_ENV" > .env
+
+            # Use docker compose plugin or legacy docker-compose
+            if docker compose version >/dev/null 2>&1; then
+              COMPOSE="docker compose"
+            else
+              COMPOSE="docker-compose"
+            fi
+
+            $COMPOSE up -d --build
+            docker image prune -f
+        env:
+          DEPLOY_BRANCH: ${{ secrets.DEPLOY_BRANCH }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          PORT: ${{ secrets.PORT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
