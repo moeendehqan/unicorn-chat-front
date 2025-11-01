@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Theme variables — Light (Default) */
+  --color-bg: #F9F8FF;        /* Background */
+  --color-text: #2B2342;      /* Text */
+  --color-primary: #A66BFF;   /* Primary */
+  --color-secondary: #FF91E0; /* Secondary */
+  --color-accent: #6FFFE9;    /* Accent */
+
+  color-scheme: light dark;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme variables — Dark Mode */
+[data-theme="dark"] {
+  --color-bg: #1A112B;        /* Background */
+  --color-text: #FFFFFF;      /* Text */
+  --color-primary: #C08BFF;   /* Primary */
+  --color-secondary: #FFB3F4; /* Secondary */
+  --color-accent: #7FFFFF;    /* Accent */
+}
+
+a {
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: inherit;
+}
+a:hover {
+  color: var(--color-secondary);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Component styles handled with Tailwind utility classes */
+
+/* Use data-theme to control dark/light; remove prefers-color-scheme overrides */
