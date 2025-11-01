@@ -1,0 +1,17 @@
+# Dependencies
+node_modules
+
+# Build output created locally (container will build its own)
+dist
+
+# VCS
+.git
+.gitignore
+
+# Editor/IDE
+.vscode
+.DS_Store
+
+# Docker
+Dockerfile
+nginx.conf
