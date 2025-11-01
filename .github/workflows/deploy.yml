@@ -26,7 +26,7 @@ jobs:
             set -euo pipefail
 
             BRANCH="${DEPLOY_BRANCH:-main}"
-            DEPLOY_PATH="${DEPLOY_PATH:-~/unicornchat-front}"
+            DEPLOY_PATH="${DEPLOY_PATH:-/var/www/unicorn/front/}"
             PORT_ENV="${PORT:-8080}"
 
             # Build repo URL (supports private repos via GH_PAT)
